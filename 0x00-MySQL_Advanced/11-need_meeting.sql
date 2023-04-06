@@ -2,4 +2,4 @@
 
 CREATE VIEW need_meeting AS
 SELECT * FROM users
-WHERE average_score < 80 AND (last_meeting IS NULL OR last_meeting < DATE_SUB(NOW(), INTERVAL 1 MONTH));
+WHERE average_score < 80 AND (last_meeting IS NULL OR last_meeting < DATEADD(month, -1, GETDATE()));
