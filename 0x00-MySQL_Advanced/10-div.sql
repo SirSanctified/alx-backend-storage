@@ -4,13 +4,11 @@ DELIMITER //
 CREATE FUNCTION SafeDiv(@ INT, @b INT)
 RETURNS FLOAT AS
 BEGIN
-    DECLARE @result FLOAT;
     IF @b = 0
     THEN
-        SET @result = 0;
+        RETURN 0;
     ELSE
-        SET @result = @a / @b;
+        RETURN CAST(@a AS FLOAT) / CAST(@b AS FLOAT);
     END IF;
-    RETURN @result;
 END//
 DELIMITER ;
