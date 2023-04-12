@@ -9,6 +9,8 @@ from uuid import uuid4
 from typing import Union, Callable, Optional
 from functools import wraps
 
+import requests
+
 
 def count_calls(method: Callable) -> Callable:
     """Counts how many times methods of the Cache class are called."""
@@ -65,6 +67,14 @@ def replay(method: Callable):
     for i in range(len(inputs)):
         print("{}(*{}) -> {}".format(key, inputs[i].decode("utf-8"),
                                      outputs[i].decode("utf-8")))
+
+
+def get_page(url: str) -> str:
+    """
+    Return the HTML content of a particular URL
+    """
+    r = requests.get(url)
+    return r.text
 
 
 class Cache:
