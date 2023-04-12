@@ -23,6 +23,38 @@ def count_calls(method: Callable) -> Callable:
     return wrapper
 
 
+def call_history(method: Callable) -> Callable:
+    """Stores the history of inputs and outputs for a particular function.
+
+    Everytime the original function will be called,
+    we will add its input parameters to one list in redis,
+    and store its output into another list.
+
+    Use the decorated function’s qualified name and append ":inputs"
+    and ":outputs" to create input and output list keys, respectively.
+
+    In the new function that the decorator will return,
+    use rpush to append the input arguments.
+    Remember that Redis can only store strings, bytes and numbers.
+    Therefore, we can simply use str(args) to normalize.
+    We can ignore potential kwargs for now.
+
+    Execute the wrapped function to retrieve the output.
+    Store the output using rpush in the "...:outputs" list,
+    then return the output.
+    """
+
+    @wraps(method)
+    def wrapper(self, *args):
+        """Wrapper function"""
+        self._redis.rpush(method.__qualname__ + ":inputs", str(args))
+        output = method(self, *args)
+        self._redis.rpush(method.__qualname__ + ":outputs", str(output))
+        return output
+
+    return wrapper
+
+
 class Cache:
     """
     Create a Cache class.
@@ -43,6 +75,8 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
+    @call_history
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """Store data in Redis."""
         key = str(uuid4())
